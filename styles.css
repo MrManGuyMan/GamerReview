@@ -1,0 +1,268 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    line-height: 1.6;
+}
+
+h1, h2, h3 {
+    text-align: center;
+    color: #007BFF;
+}
+
+a {
+    color: #007BFF;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.container {
+    width: 90%;
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Header */
+/* Header Section */
+header {
+    background-color: #f4f4f9; /* Light background to separate the header */
+    text-align: center;      /* Center-aligns content */
+    padding: 20px 0;         /* Adds top and bottom padding for spacing */
+    border-bottom: 1px solid #ddd; /* Optional: creates a visual separation */
+}
+
+header h1 {
+    font-size: 2.5rem;       /* Larger font size for title */
+    color: #007BFF;         /* Blue color for the main title */
+    margin: 0;              /* Removes default margin around the h1 */
+}
+
+header a.button {
+    margin-top: 10px;       /* Adds space below the title */
+    display: inline-block;  /* Ensures the button doesn't break */
+}
+
+/* Links */
+a.button {
+    display: inline-block;
+    background: #007BFF;
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 1rem;
+    margin-top: 15px;
+    text-align: center;
+}
+
+a.button:hover {
+    background: #0056b3;
+    color: #fff;
+}
+
+/* Form Styles */
+form {
+    background: #f9f9f9;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+form label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+form input[type="text"],
+form input[type="number"],
+form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background: #fff;
+    font-size: 1rem;
+}
+
+form textarea {
+    resize: vertical;
+}
+
+form button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background: #007BFF;
+    color: white;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+form button:hover {
+    background: #0056b3;
+}
+
+/* Reviews Section */
+.review-card {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.review-card h3 {
+    font-size: 1.2rem;
+    color: #007BFF;
+}
+
+.review-card p {
+    margin: 10px 0;
+    font-size: 1rem;
+    color: #444;
+}
+
+.review-card small {
+    display: block;
+    margin-top: 10px;
+    color: #555;
+    font-style: italic;
+}
+
+/* Pagination */
+.pagination {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.pagination a {
+    margin: 0 5px;
+    text-decoration: none;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    color: #007BFF;
+    display: inline-block;
+    transition: background 0.3s, color 0.3s;
+}
+
+.pagination a:hover {
+    background-color: #007BFF;
+    color: white;
+}
+
+.pagination a.active {
+    background-color: #0056b3;
+    color: white;
+}
+
+/* Success and Error Messages */
+.success {
+    color: green;
+    font-weight: bold;
+    margin-bottom: 20px;
+    border: 2px solid green;
+    background: #e9ffe9;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.error {
+    color: red;
+    font-weight: bold;
+    margin-bottom: 20px;
+    border: 2px solid red;
+    background: #ffe9e9;
+    padding: 10px;
+    border-radius: 5px;
+}
+a.button {
+    display: inline-block;
+    background: #007BFF; /* Blue background */
+    color: #fff; /* White text */
+    padding: 10px 15px; /* Spacing inside the button */
+    border-radius: 5px; /* Rounded edges for the button */
+    font-size: 1rem; /* Text size */
+    margin-top: 10px; /* Slight spacing above */
+    text-align: center; /* Centers text */
+    text-decoration: none; /* Removes link underline */
+}
+
+a.button:hover {
+    background: #0056b3; /* Slightly darker blue on hover */
+    color: #fff; /* Ensures the text remains white */
+}
+/* Hero Section */
+.hero {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.hero-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.hero h2 {
+    font-size: 2rem;
+    color: #007BFF;
+    margin-top: 20px;
+}
+
+.hero .tagline {
+    font-size: 1.2rem;
+    color: #555;
+    margin: 15px 0;
+}
+
+/* Call to Action Button */
+.cta {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.cta .button {
+    display: inline-block;
+    padding: 15px 25px;
+    font-size: 1.2rem;
+    color: #fff;
+    background-color: #007BFF;
+    border: none;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.cta .button:hover {
+    background-color: #0056b3;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    background: #007BFF;
+    color: #fff;
+    padding: 15px 0;
+    margin-top: 40px;
+    box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.2);
+}
