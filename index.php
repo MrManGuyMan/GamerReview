@@ -229,7 +229,7 @@ $total_pages = ceil($total_reviews / $limit);
 
             <div class="filter-buttons">
                 <button type="submit" class="filter-btn"><i class="fas fa-search"></i> Apply Filters</button>
-                <a href="review.php" class="reset-btn"><i class="fas fa-undo"></i> Reset</a>
+                <a href="index.php" class="reset-btn"><i class="fas fa-undo"></i> Reset</a>
             </div>
         </form>
     </div>
