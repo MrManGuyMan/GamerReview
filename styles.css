@@ -398,4 +398,4 @@ textarea {
 .pagination-btn.active {
     background-color: var(--primary);
     color: white;
-    border-color: var(--primary);
+    border-color: var(--primary);}
