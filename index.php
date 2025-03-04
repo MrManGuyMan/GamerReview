@@ -3,12 +3,26 @@
 global $conn;
 include('config.php');
 
+// Start session for CSRF protection
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Generate CSRF token if it doesn't exist
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 // Processing form submission for new reviews
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['action'] == 'add_review') {
-    $game_name = trim($_POST['game_name']);
-    $review = trim($_POST['review']);
-    $reviewer = trim($_POST['reviewer']);
-    $rating = intval($_POST['rating']);
+// Verify CSRF token
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $error_message = "Invalid form submission.";
+    } else {
+        $game_name = trim($_POST['game_name']);
+        $review = trim($_POST['review']);
+        $reviewer = trim($_POST['reviewer']);
+        $rating = intval($_POST['rating']);
+    }
 
     // Validation
     if (empty($game_name) || empty($review) || empty($reviewer)) {
@@ -165,7 +179,7 @@ $total_pages = ceil($total_reviews / $limit);
         <h2><i class="fas fa-pen"></i> Add Your Review</h2>
         <form method="POST" action="">
             <input type="hidden" name="action" value="add_review">
-
+            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
             <div class="form-group">
                 <label for="game_name">Game Name:</label>
                 <input type="text" id="game_name" name="game_name" required
@@ -254,6 +268,16 @@ $total_pages = ceil($total_reviews / $limit);
                                 <?php endfor; ?>
                             </div>
                         </div>
+                        <?php if(!empty($row['genre']) || !empty($row['release_year'])): ?>
+                            <div class="game-details">
+                                <?php if(!empty($row['genre'])): ?>
+                                    <span class="genre"><i class="fas fa-gamepad"></i> <?php echo htmlspecialchars($row['genre']); ?></span>
+                                <?php endif; ?>
+                                <?php if(!empty($row['release_year'])): ?>
+                                    <span class="year"><i class="fas fa-calendar"></i> <?php echo htmlspecialchars($row['release_year']); ?></span>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
                         <div class="review-content">
                             <p><?php echo nl2br(htmlspecialchars($row['review'])); ?></p>
                         </div>
@@ -321,7 +345,6 @@ $total_pages = ceil($total_reviews / $limit);
 <footer>
     <p>Gamer Reviews &copy; <?php echo date('Y'); ?> - Your ultimate source for gaming opinions!</p>
 </footer>
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Character counter for review textarea
@@ -364,6 +387,62 @@ $total_pages = ceil($total_reviews / $limit);
                     });
                 });
             });
+        }
+
+        // Form validation
+        const reviewForm = document.querySelector('form[action=""]');
+        if(reviewForm) {
+            reviewForm.addEventListener('submit', function(e) {
+                let hasError = false;
+                const gameNameInput = document.getElementById('game_name');
+                const reviewerInput = document.getElementById('reviewer');
+                const reviewTextarea = document.getElementById('review');
+
+                // Reset previous errors
+                document.querySelectorAll('.field-error').forEach(el => el.remove());
+
+                // Validate game name
+                if(gameNameInput.value.trim() === '') {
+                    addErrorTo(gameNameInput, 'Game name is required');
+                    hasError = true;
+                } else if(gameNameInput.value.length > 100) {
+                    addErrorTo(gameNameInput, 'Game name must be less than 100 characters');
+                    hasError = true;
+                }
+
+                // Validate reviewer name
+                if(reviewerInput.value.trim() === '') {
+                    addErrorTo(reviewerInput, 'Your name is required');
+                    hasError = true;
+                } else if(reviewerInput.value.length > 50) {
+                    addErrorTo(reviewerInput, 'Name must be less than 50 characters');
+                    hasError = true;
+                }
+
+                // Validate review text
+                if(reviewTextarea.value.trim() === '') {
+                    addErrorTo(reviewTextarea, 'Review text is required');
+                    hasError = true;
+                } else if(reviewTextarea.value.length > 1000) {
+                    addErrorTo(reviewTextarea, 'Review must be less than 1000 characters');
+                    hasError = true;
+                }
+
+                if(hasError) {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        function addErrorTo(element, message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'field-error';
+            errorDiv.textContent = message;
+            errorDiv.style.color = 'var(--error)';
+            errorDiv.style.fontSize = '0.875rem';
+            errorDiv.style.marginTop = '0.25rem';
+            element.parentNode.appendChild(errorDiv);
+            element.style.borderColor = 'var(--error)';
         }
     });
 </script>
