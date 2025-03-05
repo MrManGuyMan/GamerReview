@@ -61,8 +61,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['a
 
         // Insert review with game_id
         $stmt = $conn->prepare("INSERT INTO reviews (game_id, game_name, review, reviewer, rating) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("issssi", $game_id, $game_name, $review, $reviewer, $rating);
-
+        $stmt->bind_param("iissi", $game_id, $game_name, $review, $reviewer, $rating);
         if ($stmt->execute()) {
             $message = "Review added successfully!";
         } else {
