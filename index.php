@@ -264,7 +264,8 @@ $total_pages = ceil($total_reviews / $limit);
                         <option value="<?php echo htmlspecialchars($game); ?>"><?php echo htmlspecialchars($game); ?></option>
                     <?php endforeach; ?>
                 </select>
-                <!-- Add option to enter new game -->
+                <!-- Add label here -->
+                <label for="new_game">New Game Name (Optional)</label>
                 <input type="text" id="new_game" name="new_game" placeholder="Or enter a new game name">
             </div>
 
