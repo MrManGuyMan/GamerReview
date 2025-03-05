@@ -12,62 +12,121 @@ if (session_status() == PHP_SESSION_NONE) {
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
+// Input sanitization function
+function sanitizeInput($input, $type = 'string') {
+    if ($input === null) return null;
+
+    $input = trim($input);
+
+    switch ($type) {
+        case 'string':
+            return filter_var($input, FILTER_SANITIZE_STRING);
+        case 'int':
+            return filter_var($input, FILTER_VALIDATE_INT);
+        case 'game_name':
+            // Allow alphanumeric, spaces, and some special characters
+            return preg_replace("/[^a-zA-Z0-9\s\-():.]/", '', $input);
+        default:
+            return $input;
+    }
+}
+
 // Processing form submission for new reviews
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['action'] == 'add_review') {
-// Verify CSRF token
+    // Verify CSRF token
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-        $error_message = "Invalid form submission.";
+        $error_message = "Invalid form submission. Please try again.";
     } else {
-        $game_name = trim($_POST['game_name']);
-        $review = trim($_POST['review']);
-        $reviewer = trim($_POST['reviewer']);
-        $rating = intval($_POST['rating']);
-    }
+        // Determine game name (from dropdown or new input)
+        $game_name = !empty($_POST['new_game'])
+            ? sanitizeInput($_POST['new_game'], 'game_name')
+            : sanitizeInput($_POST['game_name'], 'game_name');
 
-    // Validation
-    if (empty($game_name) || empty($review) || empty($reviewer)) {
-        $error_message = "All fields are required.";
-    } elseif (strlen($game_name) > 100) {
-        $error_message = "Game name must be less than 100 characters.";
-    } elseif (!preg_match("/^[a-zA-Z0-9\s]+$/", $game_name)) {
-        $error_message = "Game name contains invalid characters.";
-    } elseif (strlen($reviewer) > 50) {
-        $error_message = "Reviewer name must be less than 50 characters.";
-    } elseif (!preg_match("/^[a-zA-Z\s]+$/", $reviewer)) {
-        $error_message = "Reviewer name should contain only letters and spaces.";
-    } elseif (strlen($review) > 1000) {
-        $error_message = "Review must be less than 1000 characters.";
-    } elseif ($rating < 1 || $rating > 5) {
-        $error_message = "Rating must be between 1 and 5.";
-    } else {
-        // Check if game exists in games table
-        $game_id = null;
-        $check_game = $conn->prepare("SELECT id FROM games WHERE name = ?");
-        $check_game->bind_param("s", $game_name);
-        $check_game->execute();
-        $game_result = $check_game->get_result();
+        $review = sanitizeInput($_POST['review']);
+        $reviewer = sanitizeInput($_POST['reviewer'], 'string');
+        $rating = sanitizeInput($_POST['rating'], 'int');
 
-        if ($game_result->num_rows > 0) {
-            $game_id = $game_result->fetch_assoc()['id'];
-        } else {
-            // Insert new game
-            $insert_game = $conn->prepare("INSERT INTO games (name) VALUES (?)");
-            $insert_game->bind_param("s", $game_name);
-            $insert_game->execute();
-            $game_id = $conn->insert_id;
-            $insert_game->close();
+        // Comprehensive validation
+        $validation_errors = [];
+
+        // Game name validation
+        if (empty($game_name)) {
+            $validation_errors[] = "Game name is required.";
+        } elseif (strlen($game_name) > 100) {
+            $validation_errors[] = "Game name must be less than 100 characters.";
         }
-        $check_game->close();
 
-        // Insert review with game_id
-        $stmt = $conn->prepare("INSERT INTO reviews (game_id, game_name, review, reviewer, rating) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("iissi", $game_id, $game_name, $review, $reviewer, $rating);
-        if ($stmt->execute()) {
-            $message = "Review added successfully!";
-        } else {
-            $error_message = "Error: Could not add review. Please try again.";
+        // Reviewer validation
+        if (empty($reviewer)) {
+            $validation_errors[] = "Reviewer name is required.";
+        } elseif (strlen($reviewer) > 50) {
+            $validation_errors[] = "Reviewer name must be less than 50 characters.";
+        } elseif (!preg_match("/^[a-zA-Z\s]+$/", $reviewer)) {
+            $validation_errors[] = "Reviewer name should contain only letters and spaces.";
         }
-        $stmt->close();
+
+        // Review validation
+        if (empty($review)) {
+            $validation_errors[] = "Review text is required.";
+        } elseif (strlen($review) > 1000) {
+            $validation_errors[] = "Review must be less than 1000 characters.";
+        }
+
+        // Rating validation
+        if ($rating === false || $rating < 1 || $rating > 5) {
+            $validation_errors[] = "Rating must be between 1 and 5.";
+        }
+
+        // If no validation errors, proceed with database operations
+        if (empty($validation_errors)) {
+            try {
+                // Check if game exists in games table
+                $game_id = null;
+                $check_game = $conn->prepare("SELECT id FROM games WHERE name = ?");
+                $check_game->bind_param("s", $game_name);
+                $check_game->execute();
+                $game_result = $check_game->get_result();
+
+                if ($game_result->num_rows > 0) {
+                    $game_id = $game_result->fetch_assoc()['id'];
+                } else {
+                    // Insert new game with additional safety
+                    $insert_game = $conn->prepare("INSERT INTO games (name) VALUES (?)");
+                    $insert_game->bind_param("s", $game_name);
+
+                    if (!$insert_game->execute()) {
+                        throw new Exception("Failed to insert new game: " . $insert_game->error);
+                    }
+
+                    $game_id = $conn->insert_id;
+                    $insert_game->close();
+                }
+                $check_game->close();
+
+                // Insert review with improved error handling
+                $stmt = $conn->prepare("INSERT INTO reviews (game_id, game_name, review, reviewer, rating) VALUES (?, ?, ?, ?, ?)");
+                $stmt->bind_param("isssi", $game_id, $game_name, $review, $reviewer, $rating);
+
+                if ($stmt->execute()) {
+                    $message = "Review added successfully!";
+                } else {
+                    throw new Exception("Review insertion failed: " . $stmt->error);
+                }
+                $stmt->close();
+
+            } catch (Exception $e) {
+                // Log the error
+                logError("Review Submission Error", [
+                    'message' => $e->getMessage(),
+                    'game_name' => $game_name,
+                    'reviewer' => $reviewer
+                ]);
+                $error_message = "An error occurred while submitting your review. Please try again.";
+            }
+        } else {
+            // Validation failed
+            $error_message = implode("<br>", $validation_errors);
+        }
     }
 }
 
@@ -117,22 +176,6 @@ $sql = "SELECT r.*, g.name as game_name
         $where_sql 
         ORDER BY r.created_at DESC 
         LIMIT ? OFFSET ?";
-
-$stmt = $conn->prepare($sql);
-
-// Add limit and offset to params array
-$params[] = $limit;
-$params[] = $offset;
-$types .= "ii";
-
-// Bind parameters if any exist
-if (!empty($params)) {
-    $stmt->bind_param($types, ...$params);
-}
-
-$stmt->execute();
-$result = $stmt->get_result();
-
 
 // Add the limit and offset parameters
 $params[] = $limit;
