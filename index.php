@@ -111,12 +111,28 @@ while ($game_row = $games_result->fetch_assoc()) {
 }
 
 // Prepare query for filtered reviews
-$sql = "SELECT r.*, g.genre, g.release_year 
-        FROM reviews r
-        LEFT JOIN games g ON r.game_id = g.id
-        $where_sql
-        ORDER BY r.created_at DESC
+$sql = "SELECT r.*, g.name as game_name 
+        FROM reviews r 
+        LEFT JOIN games g ON r.game_id = g.id 
+        $where_sql 
+        ORDER BY r.created_at DESC 
         LIMIT ? OFFSET ?";
+
+$stmt = $conn->prepare($sql);
+
+// Add limit and offset to params array
+$params[] = $limit;
+$params[] = $offset;
+$types .= "ii";
+
+// Bind parameters if any exist
+if (!empty($params)) {
+    $stmt->bind_param($types, ...$params);
+}
+
+$stmt->execute();
+$result = $stmt->get_result();
+
 
 // Add the limit and offset parameters
 $params[] = $limit;
@@ -181,37 +197,37 @@ $total_pages = ceil($total_reviews / $limit);
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
             <div class="form-group">
                 <label for="game_name">Game Name:</label>
-                <input type="text" id="game_name" name="game_name" required
-                       list="game-suggestions" autocomplete="off">
-                <datalist id="game-suggestions">
-                    <?php foreach($games as $game): ?>
-                    <option value="<?php echo htmlspecialchars($game); ?>">
-                        <?php endforeach; ?>
-                </datalist>
+                <select name="game_name" id="game_name" required>
+                    <option value="">Select a game</option>
+                    <?php foreach ($games as $game): ?>
+                        <option value="<?php echo htmlspecialchars($game); ?>"><?php echo htmlspecialchars($game); ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <!-- Add option to enter new game -->
+                <input type="text" id="new_game" name="new_game" placeholder="Or enter a new game name">
             </div>
 
             <div class="form-group">
                 <label for="rating">Rating:</label>
                 <div class="star-rating">
-                    <?php for($i = 1; $i <= 5; $i++): ?>
-                        <input type="radio" id="rating-<?php echo $i; ?>" name="rating" value="<?php echo $i; ?>" <?php echo ($i == 5) ? 'checked' : ''; ?>>
-                        <label for="rating-<?php echo $i; ?>"><i class="fas fa-star"></i></label>
+                    <?php for($i = 5; $i >= 1; $i--): ?>
+                        <input type="radio" id="star<?php echo $i; ?>" name="rating" value="<?php echo $i; ?>" required>
+                        <label for="star<?php echo $i; ?>">★</label>
                     <?php endfor; ?>
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="reviewer">Your Name:</label>
-                <input type="text" id="reviewer" name="reviewer" required>
+                <input type="text" name="reviewer" id="reviewer" required>
             </div>
 
             <div class="form-group">
                 <label for="review">Your Review:</label>
-                <textarea id="review" name="review" rows="5" required></textarea>
-                <div class="char-counter"><span id="char-count">0</span>/1000</div>
+                <textarea name="review" id="review" rows="4" required></textarea>
             </div>
 
-            <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> Submit Review</button>
+            <button type="submit" class="submit-btn">Submit Review</button>
         </form>
     </div>
 
@@ -248,32 +264,33 @@ $total_pages = ceil($total_reviews / $limit);
     </div>
 
     <!-- Display Reviews -->
+    <
     <div class="reviews-section">
-        <h2><i class="fas fa-comments"></i> Game Reviews <?php if($total_reviews > 0): ?>(<?php echo $total_reviews; ?>)<?php endif; ?></h2>
+        <h2><i class="fas fa-comments"></i> Game
+            Reviews <?php if ($total_reviews > 0): ?>(<?php echo htmlspecialchars($total_reviews); ?>)<?php endif; ?>
+        </h2>
 
-        <?php if ($result->num_rows > 0): ?>
+        <?php if ($result && $result->num_rows > 0): ?>
             <div class="reviews-container">
                 <?php while ($row = $result->fetch_assoc()): ?>
                     <div class="review-card">
                         <div class="review-header">
                             <h3><?php echo htmlspecialchars($row['game_name']); ?></h3>
                             <div class="rating">
-                                <?php for($i = 1; $i <= 5; $i++): ?>
-                                    <?php if($i <= $row['rating']): ?>
-                                        <i class="fas fa-star"></i>
-                                    <?php else: ?>
-                                        <i class="far fa-star"></i>
-                                    <?php endif; ?>
+                                <?php for ($i = 1; $i <= 5; $i++): ?>
+                                    <i class="<?php echo ($i <= $row['rating']) ? 'fas fa-star' : 'far fa-star'; ?>"></i>
                                 <?php endfor; ?>
                             </div>
                         </div>
-                        <?php if(!empty($row['genre']) || !empty($row['release_year'])): ?>
+                        <?php if (!empty($row['genre']) || !empty($row['release_year'])): ?>
                             <div class="game-details">
-                                <?php if(!empty($row['genre'])): ?>
-                                    <span class="genre"><i class="fas fa-gamepad"></i> <?php echo htmlspecialchars($row['genre']); ?></span>
+                                <?php if (!empty($row['genre'])): ?>
+                                    <span class="genre"><i
+                                                class="fas fa-gamepad"></i> <?php echo htmlspecialchars($row['genre']); ?></span>
                                 <?php endif; ?>
-                                <?php if(!empty($row['release_year'])): ?>
-                                    <span class="year"><i class="fas fa-calendar"></i> <?php echo htmlspecialchars($row['release_year']); ?></span>
+                                <?php if (!empty($row['release_year'])): ?>
+                                    <span class="year"><i
+                                                class="fas fa-calendar"></i> <?php echo htmlspecialchars($row['release_year']); ?></span>
                                 <?php endif; ?>
                             </div>
                         <?php endif; ?>
@@ -281,8 +298,10 @@ $total_pages = ceil($total_reviews / $limit);
                             <p><?php echo nl2br(htmlspecialchars($row['review'])); ?></p>
                         </div>
                         <div class="review-footer">
-                            <span class="reviewer"><i class="fas fa-user"></i> <?php echo htmlspecialchars($row['reviewer']); ?></span>
-                            <span class="date"><i class="fas fa-calendar-alt"></i> <?php echo date('M j, Y', strtotime($row['created_at'])); ?></span>
+                            <span class="reviewer"><i
+                                        class="fas fa-user"></i> <?php echo htmlspecialchars($row['reviewer']); ?></span>
+                            <span class="date"><i
+                                        class="fas fa-calendar-alt"></i> <?php echo htmlspecialchars(date('M j, Y', strtotime($row['created_at']))); ?></span>
                         </div>
                     </div>
                 <?php endwhile; ?>
