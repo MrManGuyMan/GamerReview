@@ -9,8 +9,14 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 // Generate CSRF token if it doesn't exist
-if (!isset($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+try {
+    if (!isset($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+} catch (Exception $e) {
+    // Log the error and set a fallback token
+    error_log('CSRF Token Generation Error: ' . $e->getMessage());
+    $_SESSION['csrf_token'] = md5(uniqid(mt_rand(), true));
 }
 // Input sanitization function
 function sanitizeInput($input, $type = 'string') {
@@ -30,7 +36,13 @@ function sanitizeInput($input, $type = 'string') {
             return $input;
     }
 }
-
+$error_message = '';
+$message = '';
+$game_filter = '';
+$rating_filter = 0;
+$page = 1;
+$total_reviews = 0;
+$total_pages = 0;
 // Processing form submission for new reviews
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['action'] == 'add_review') {
     // Verify CSRF token
@@ -150,7 +162,6 @@ if ($rating_filter > 0) {
     $params[] = $rating_filter;
     $types .= "i";
 }
-
 // Build the WHERE clause
 $where_sql = "";
 if (count($where_clauses) > 0) {
@@ -163,10 +174,17 @@ $page = (isset($_GET['page']) && is_numeric($_GET['page'])) ? intval($_GET['page
 $offset = ($page - 1) * $limit;
 
 // Fetch games for dropdown
-$games_result = $conn->query("SELECT DISTINCT name FROM games ORDER BY name");
 $games = [];
-while ($game_row = $games_result->fetch_assoc()) {
-    $games[] = $game_row['name'];
+try {
+    $games_result = $conn->query("SELECT DISTINCT name FROM games ORDER BY name");
+    if ($games_result) {
+        while ($game_row = $games_result->fetch_assoc()) {
+            $games[] = $game_row['name'];
+        }
+    }
+} catch (Exception $e) {
+    error_log('Error fetching games: ' . $e->getMessage());
+    $error_message = "Unable to load game list. Please try again later.";
 }
 
 // Prepare query for filtered reviews
