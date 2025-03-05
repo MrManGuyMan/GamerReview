@@ -70,9 +70,9 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Reviews - Add & View Reviews</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="assets/css/all.min.css">
-    <script defer src="js/form-validation.js"></script>
+    <script defer src="form-validation.js"></script>
 </head>
 <body>
 <header>
