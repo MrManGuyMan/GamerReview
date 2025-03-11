@@ -102,7 +102,6 @@ function fetchAllGames($conn) {
 
     try {
         $games_result = $conn->query("SELECT DISTINCT name FROM games ORDER BY name");
-
         if ($games_result) {
             while ($game_row = $games_result->fetch_assoc()) {
                 $games[] = $game_row['name'];
@@ -153,7 +152,7 @@ function fetchFilteredReviews($conn, $game_filter, $rating_filter, $page) {
             LEFT JOIN games g ON r.game_id = g.id 
             $where_sql 
             ORDER BY r.created_at DESC 
-            LIMIT ? OFFSET ?";
+            `LIMIT` ? OFFSET ?";
 
     // Add pagination parameters
     $params[] = $limit;
