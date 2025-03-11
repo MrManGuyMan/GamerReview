@@ -8,6 +8,7 @@ if (session_status() == PHP_SESSION_NONE) {
 require_once 'config.php';  // Database configuration
 require_once 'functions/validation.php';  // Input validation functions
 require_once 'functions/display_helper.php';  // Display helper functions
+require_once 'functions/review_handler.php';
 
 // Initialize variables
 $error_message = '';
