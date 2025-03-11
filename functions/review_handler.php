@@ -152,7 +152,7 @@ function fetchFilteredReviews($conn, $game_filter, $rating_filter, $page) {
             LEFT JOIN games g ON r.game_id = g.id 
             $where_sql 
             ORDER BY r.created_at DESC 
-            `LIMIT` ? OFFSET ?";
+            LIMIT ? OFFSET ?";
 
     // Add pagination parameters
     $params[] = $limit;
