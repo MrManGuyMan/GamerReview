@@ -25,7 +25,7 @@ class DatabaseConfig {
      * @param string $message Error message
      * @param array $context Additional context for the error
      */
-    private static function logError($message, $context = []) {
+    private static function logError(string $message, array $context = []) {
         $logEntry = date('[Y-m-d H:i:s] ') . $message . "\n";
         if (!empty($context)) {
             $logEntry .= "Context: " . json_encode($context) . "\n";
