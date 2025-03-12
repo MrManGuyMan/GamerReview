@@ -32,6 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="assets/css/all.min.css">
 </head>
 <body>
+<?php include 'header.php'; ?>
 <div class="container">
     <div class="form-container">
         <h2><i class="fas fa-user-plus"></i> Register</h2>

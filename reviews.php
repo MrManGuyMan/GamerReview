@@ -54,14 +54,7 @@ try {
     <script defer src="form-validation.js"></script>
 </head>
 <body>
-<header>
-    <h1>Game Reviews</h1>
-    <nav>
-        <a href="index.php" class="button"><i class="fas fa-home"></i> Home</a>
-        <a href="add-review.php" class="button"><i class="fas fa-pen"></i> Add Review</a>
-        <a href="reviews.php" class="button active"><i class="fas fa-comments"></i> View Reviews</a>
-    </nav>
-</header>
+<?php include 'header.php'; ?>
 
 <div class="container">
     <!-- Page Title -->

@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once 'functions/auth.php';
-$redirect = isset($_GET['redirect']) ? $_GET['redirect'] : 'index.php';
+$redirect = $_GET['redirect'] ?? 'index.php';
 
 $error_message = '';
 $success_message = '';
@@ -31,6 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="assets/css/all.min.css">
 </head>
 <body>
+<?php include 'header.php'; ?>
 <div class="container">
     <div class="form-container">
         <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
