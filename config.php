@@ -122,8 +122,7 @@ class DatabaseConfig {
                 role ENUM('user', 'admin') DEFAULT 'user',
                 INDEX idx_username (username),
                 INDEX idx_email (email)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
-
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
         ];
 
         foreach ($tables as $table => $query) {
