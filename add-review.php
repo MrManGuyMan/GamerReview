@@ -108,12 +108,6 @@ try {
                     <?php endfor; ?>
                 </div>
             </div>
-
-            <div class="form-group">
-                <label for="reviewer">Your Name:</label>
-                <input type="text" name="reviewer" id="reviewer" maxlength="50" required>
-            </div>
-
             <div class="form-group">
                 <label for="review">Your Review:</label>
                 <textarea name="review" id="review" rows="4" maxlength="1000" required></textarea>

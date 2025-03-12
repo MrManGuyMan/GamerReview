@@ -22,7 +22,7 @@ function handleReviewSubmission($conn, $post_data) {
         : sanitizeInput($post_data['game_name'], 'game_name');
 
     $review = sanitizeInput($post_data['review']);
-    $reviewer = sanitizeInput($post_data['reviewer']);
+    $reviewer = $_SESSION['username'];
     $rating = sanitizeInput($post_data['rating'], 'int');
 
     // Validate input data
@@ -30,7 +30,6 @@ function handleReviewSubmission($conn, $post_data) {
         'game_name' => $game_name,
         'new_game' => $post_data['new_game'] ?? '',
         'review' => $review,
-        'reviewer' => $reviewer,
         'rating' => $rating
     ]);
 

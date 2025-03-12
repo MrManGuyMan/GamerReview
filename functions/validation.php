@@ -51,15 +51,6 @@ function validateReviewData($data) {
         $errors[] = "Game name must be less than 100 characters.";
     }
 
-    // Reviewer validation
-    if (empty($data['reviewer'])) {
-        $errors[] = "Reviewer name is required.";
-    } elseif (strlen($data['reviewer']) > 50) {
-        $errors[] = "Reviewer name must be less than 50 characters.";
-    } elseif (!preg_match("/^[a-zA-Z\s]+$/", $data['reviewer'])) {
-        $errors[] = "Reviewer name should contain only letters and spaces.";
-    }
-
     // Review validation
     if (empty($data['review'])) {
         $errors[] = "Review text is required.";
