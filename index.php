@@ -6,6 +6,7 @@ if (session_status() == PHP_SESSION_NONE) {
 
 // Include necessary files
 require_once 'config.php';  // Database configuration
+require_once 'functions/auth.php';
 ?>
 
 <!DOCTYPE html>
