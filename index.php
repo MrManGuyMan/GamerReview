@@ -25,6 +25,14 @@ require_once 'config.php';  // Database configuration
         <a href="index.php" class="button active"><i class="fas fa-home"></i> Home</a>
         <a href="add-review.php" class="button"><i class="fas fa-pen"></i> Add Review</a>
         <a href="reviews.php" class="button"><i class="fas fa-comments"></i> View Reviews</a>
+        <?php if (Auth::isLoggedIn()): ?>
+            <span class="user-info">Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></span>
+            <a href="logout.php" class="button"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        <?php else: ?>
+            <a href="login.php" class="button"><i class="fas fa-sign-in-alt"></i> Login</a>
+            <a href="register.php" class="button"><i class="fas fa-user-plus"></i> Register</a>
+        <?php endif; ?>
+
     </nav>
 </header>
 
