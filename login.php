@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'functions/auth.php';
+$redirect = isset($_GET['redirect']) ? $_GET['redirect'] : 'index.php';
 
 $error_message = '';
 $success_message = '';

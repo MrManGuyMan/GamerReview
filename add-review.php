@@ -8,6 +8,12 @@ if (session_status() == PHP_SESSION_NONE) {
 require_once 'config.php';  // Database configuration
 require_once 'functions/validation.php';  // Input validation functions
 require_once 'functions/review_handler.php';  // Review submission logic
+require_once 'functions/auth.php';
+
+if (!Auth::isLoggedIn()) {
+    header('Location: login.php?redirect=add-review.php');
+    exit;
+}
 
 // Initialize variables
 $error_message = '';
