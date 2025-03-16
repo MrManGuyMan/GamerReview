@@ -109,9 +109,11 @@ function handleReviewSubmission(mysqli $conn, array $post_data): array
             $insert_game->close();
         }
         $check_game->close();
-
+        $next_index_query = "SELECT COALESCE(MAX(index_order), 0) + 1 AS next_index FROM reviews";
+        $next_index_result = $conn->query($next_index_query);
+        $next_index = $next_index_result->fetch_assoc()['next_index'];
         // Insert review
-        $stmt = $conn->prepare("INSERT INTO reviews (game_id, game_name, review, reviewer, rating) VALUES (?, ?, ?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO reviews (game_id, game_name, review, reviewer, rating, index_order) VALUES (?, ?, ?, ?, ?,?)");
         $stmt->bind_param("isssi", $game_id, $game_name, $review, $reviewer, $rating);
 
         if (!$stmt->execute()) {
