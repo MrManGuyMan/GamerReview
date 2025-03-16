@@ -4,10 +4,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
 ?>
 <header>
     <h1>Game Reviews</h1>
-    <nav>
-        <a href="index.php" class="button <?php echo $current_page === 'index.php' ? 'active' : ''; ?>">
-            <i class="fas fa-home"></i> Home
-        </a>
+    <nav role="navigation" aria-label="Main navigation">
+    <a href="index.php" class="button <?php echo $current_page === 'index.php' ? 'active' : ''; ?>" aria-current="<?php echo $current_page === 'index.php' ? 'page' : 'false'; ?>">
+        <i class="fas fa-home" aria-hidden="true"></i> Home
+    </a>
         <a href="reviews.php" class="button <?php echo $current_page === 'reviews.php' ? 'active' : ''; ?>">
             <i class="fas fa-comments"></i> View Reviews
         </a>

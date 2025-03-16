@@ -82,8 +82,8 @@ try {
 
     <!-- Review Submission Form -->
     <div class="form-container">
-        <form method="POST" action="" id="review-form">
-            <input type="hidden" name="action" value="add_review">
+        <form method="POST" action="" id="review-form" role="form" aria-label="Review submission form">
+        <input type="hidden" name="action" value="add_review">
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
 
             <div class="form-group">

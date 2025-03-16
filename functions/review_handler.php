@@ -2,6 +2,51 @@
 /**
  * Functions for handling review submissions and retrievals
  */
+/**
+ * Reindex all reviews to ensure they appear consecutively
+ *
+ * @param mysqli $conn Database connection
+ * @return bool Success status
+ */
+function reindexReviews(mysqli $conn): bool
+{
+    try {
+        // Begin transaction
+        $conn->begin_transaction();
+
+        // Get all reviews ordered by created_at
+        $query = "SET @row_number = 0";
+        $conn->query($query);
+
+        // Update index_order for all reviews
+        $query = "UPDATE reviews r
+                 JOIN (
+                     SELECT id, 
+                            @row_number:=@row_number + 1 AS new_index
+                     FROM reviews, 
+                          (SELECT @row_number:=0) AS init
+                     ORDER BY created_at
+                 ) AS numbered
+                 ON r.id = numbered.id
+                 SET r.index_order = numbered.new_index";
+
+        $result = $conn->query($query);
+
+        if (!$result) {
+            throw new Exception("Failed to reindex reviews: " . $conn->error);
+        }
+
+        // Commit transaction
+        $conn->commit();
+        return true;
+
+    } catch (Exception $e) {
+        // Rollback transaction on error
+        $conn->rollback();
+        error_log("Review Reindexing Error: " . $e->getMessage());
+        return false;
+    }
+}
 
 /**
  * Handle review submission
@@ -10,7 +55,8 @@
  * @param array $post_data POST data from form
  * @return array Result with success or error message
  */
-function handleReviewSubmission($conn, $post_data) {
+function handleReviewSubmission(mysqli $conn, array $post_data): array
+{
     // Verify CSRF token
     if (!isset($post_data['csrf_token']) || !validateCsrfToken($post_data['csrf_token'])) {
         return ['error' => "Invalid form submission. Please try again."];
@@ -76,7 +122,7 @@ function handleReviewSubmission($conn, $post_data) {
 
         // Commit transaction
         $conn->commit();
-
+        reindexReviews($conn);
         return ['success' => true];
 
     } catch (Exception $e) {
@@ -146,11 +192,10 @@ function fetchFilteredReviews($conn, $game_filter, $rating_filter, $page) {
     $where_sql = count($where_clauses) > 0 ? "WHERE " . implode(" AND ", $where_clauses) : "";
 
     // Main query for reviews
-    $sql = "SELECT r.*, g.name as game_name, g.genre, g.release_year 
-            FROM reviews r 
-            LEFT JOIN games g ON r.game_id = g.id 
-            $where_sql 
-            ORDER BY r.created_at DESC 
+    $sql = "SELECT SQL_CALC_FOUND_ROWS r.* 
+            FROM reviews r
+            $where_sql
+            ORDER BY r.index_order ASC 
             LIMIT ? OFFSET ?";
 
     // Add pagination parameters

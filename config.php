@@ -105,11 +105,13 @@ class DatabaseConfig {
                 review TEXT NOT NULL,
                 reviewer VARCHAR(50) NOT NULL,
                 rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+                index_order INT NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 INDEX idx_game_id (game_id),
                 INDEX idx_rating (rating),
+                INDEX idx_index_order (index_order),
                 INDEX idx_created_at (created_at),
-                FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE SET NULL
+                FOREIGN KEY (game_id) REFERENCES games(id)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
             'users' => "CREATE TABLE IF NOT EXISTS users (
                 id INT AUTO_INCREMENT PRIMARY KEY,
